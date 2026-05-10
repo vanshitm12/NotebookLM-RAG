@@ -7,16 +7,16 @@
 }
 
 :root {
-  --bg: #080c14;
-  --surface: #0f1620;
-  --surface-2: #162030;
-  --border: #1e2d44;
-  --text: #e8edf5;
-  --muted: #7a8faa;
-  --accent: #4f8ef7;
-  --accent-hover: #6ba3ff;
-  --user: #152040;
-  --error: #f06b6b;
+  --bg: #f0fdf9;
+  --surface: #ffffff;
+  --surface-2: #e6faf4;
+  --border: #b2edd9;
+  --text: #0d2b22;
+  --muted: #4d9e82;
+  --accent: #00c9a7;
+  --accent-hover: #00b396;
+  --user: #ccf7ee;
+  --error: #f05a5a;
 }
 
 html,
