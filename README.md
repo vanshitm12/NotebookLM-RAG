@@ -234,5 +234,4 @@ The project demonstrates a complete production-style RAG pipeline using modern A
 
 ## Example
 
-<img width="1470" height="956" alt="example" src="https://github.com/user-attachments/assets/72ee362c-1d0e-4830-9f0f-e38e2bc3181e" />
 
