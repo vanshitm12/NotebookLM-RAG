@@ -233,5 +233,5 @@ The project demonstrates a complete production-style RAG pipeline using modern A
 ---
 
 ## Example
-
+![Screenshot](./Screenshot.png)
 
