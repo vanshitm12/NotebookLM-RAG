@@ -12,6 +12,28 @@ type RetrievedChunk = {
   content: string;
 };
 
+async function gradeChunk(
+  question: string,
+  content: string,
+  llm: ChatGoogleGenerativeAI,
+): Promise<"relevant" | "irrelevant"> {
+  const response = await llm.invoke([
+    {
+      role: "system",
+      content: `You are a relevance grader. Given a question and a document chunk, respond with ONLY the word "relevant" or "irrelevant". No other text.`,
+    },
+    {
+      role: "user",
+      content: `Question: ${question}\n\nDocument chunk:\n${content}`,
+    },
+  ]);
+  const text =
+    typeof response.content === "string"
+      ? response.content.trim().toLowerCase()
+      : "";
+  return text.includes("irrelevant") ? "irrelevant" : "relevant";
+}
+
 export async function POST(req: NextRequest) {
   try {
     const { docId, question } = (await req.json()) as {
@@ -34,7 +56,27 @@ export async function POST(req: NextRequest) {
     const retriever = store.asRetriever({ k: 4 });
     const docs = await retriever.invoke(question);
 
-    const context: RetrievedChunk[] = docs.map((d, i) => ({
+    const llm = new ChatGoogleGenerativeAI({
+      model: CHAT_MODEL,
+      temperature: 0,
+      apiKey: process.env.GOOGLE_API_KEY,
+    });
+
+    const gradingResults = await Promise.all(
+      docs.map((d) => gradeChunk(question, d.pageContent, llm)),
+    );
+
+    const filteredDocs = docs.filter((_, i) => gradingResults[i] === "relevant");
+
+    if (filteredDocs.length === 0) {
+      return NextResponse.json({
+        answer:
+          "I couldn't find relevant information in the document to answer your question.",
+        sources: [],
+      });
+    }
+
+    const context: RetrievedChunk[] = filteredDocs.map((d, i) => ({
       index: i + 1,
       pageNumber:
         (d.metadata?.loc as { pageNumber?: number } | undefined)?.pageNumber ??
@@ -44,21 +86,13 @@ export async function POST(req: NextRequest) {
     }));
 
     const systemPrompt = `You are an AI assistant that answers user questions based STRICTLY on the provided context from a single document.
-
 Rules:
 - Answer ONLY using the provided context. Do NOT use outside knowledge.
 - If the answer is not in the context, reply: "I couldn't find this in the document."
 - When you use information from a chunk that has a pageNumber, cite it like "(page 3)".
 - Be concise and direct.
-
 Context (JSON array of chunks):
 ${JSON.stringify(context, null, 2)}`;
-
-    const llm = new ChatGoogleGenerativeAI({
-      model: CHAT_MODEL,
-      temperature: 0,
-      apiKey: process.env.GOOGLE_API_KEY,
-    });
 
     const response = await llm.invoke([
       { role: "system", content: systemPrompt },
