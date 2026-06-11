@@ -89,7 +89,7 @@ export default function Home() {
 
   return (
     <main className="app">
-      <h1>Gen Ai Assignment by Vanshit</h1>
+      <h1>NoteBookLM RAG</h1>
       <p className="subtitle">
         Upload a PDF or text file, then ask questions about its contents.
       </p>
