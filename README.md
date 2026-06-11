@@ -253,6 +253,3 @@ This project helped in understanding:
 NotebookLM RAG showcases how Large Language Models can be enhanced with corrective retrieval systems to create accurate, context-aware AI applications. The addition of Corrective RAG ensures that only high-quality, relevant context reaches the LLM — reducing hallucinations and improving answer precision.
 
 ---
-
-## Example
-![Screenshot](./Screenshot.png)
